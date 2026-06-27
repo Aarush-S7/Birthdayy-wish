@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Happy Birthday Maluu ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================================================
+       DESIGN TOKENS — all colours, fonts, radii here
+       ================================================ */
+    :root {
+      --rose:     #C8607A;
+      --rose-lt:  #F0AABC;
+      --rose-bg:  #FFF0F5;
+      --peach:    #FFD8C8;
+      --plum:     #2D1520;
+      --muted:    #7A5060;
+      --gold:     #C9906C;
+      --card-bg:  rgba(255,255,255,0.76);
+      --shadow:   rgba(45,21,32,0.10);
+      --ff-d:     'Playfair Display', Georgia, serif;
+      --ff-b:     'DM Sans', system-ui, sans-serif;
+      --r:        16px;
+    }
+
+    /* ================================================
+       RESET + BASE
+       ================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: var(--ff-b);
+      color: var(--plum);
+      background: var(--rose-bg);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
+
+    /* ================================================
+       PERSISTENT BACKGROUND
+       ================================================ */
+    #bg {
+      position: fixed; inset: 0; z-index: 0;
+      background: linear-gradient(155deg, #FFF5F8 0%, #FFE8F0 45%, #FFD8C8 100%);
+    }
+
+    /* ================================================
+       FLOATING PARTICLES
+       ================================================ */
+    #ptcl {
+      position: fixed; inset: 0; z-index: 1;
+      pointer-events: none; overflow: hidden;
+    }
+    .p {
+      position: absolute; border-radius: 50%; opacity: 0;
+      animation: pfloat var(--d) ease-in var(--dl) infinite;
+    }
+    @keyframes pfloat {
+      0%   { transform: translateY(108vh); opacity: 0; }
+      8%   { opacity: .55; }
+      90%  { opacity: .3; }
+      100% { transform: translateY(-8vh); opacity: 0; }
+    }
+
+    /* ================================================
+       CONFETTI CANVAS
+       ================================================ */
+    #cc {
+      position: fixed; inset: 0; z-index: 90;
+      pointer-events: none;
+    }
+
+    /* ================================================
+       FIXED UI — music toggle + progress dots
+       ================================================ */
+    #music-btn {
+      position: fixed; top: 14px; right: 14px; z-index: 300;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.95);
+      box-shadow: 0 2px 12px var(--shadow);
+      cursor: pointer; display: none;
+      align-items: center; justify-content: center;
+      font-size: 1rem; color: var(--rose);
+      transition: transform .15s ease;
+    }
+    #music-btn.show { display: flex; }
+    #music-btn:active { transform: scale(.88); }
+
+    #dots {
+      position: fixed; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      z-index: 300; display: none;
+      flex-direction: column; gap: 6px;
+    }
+    #dots.show { display: flex; }
+    .dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--rose-lt);
+      transition: background .3s ease, transform .3s ease;
+    }
+    .dot.on { background: var(--rose); transform: scale(1.6); }
+
+    /* ================================================
+       SCREEN SYSTEM
+       ================================================ */
+    #app {
+      position: fixed; inset: 0; z-index: 10; overflow: hidden;
+    }
+    .scr {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 1.4rem 1.3rem;
+      opacity: 0; pointer-events: none;
+      transform: translateY(22px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .scr.active {
+      opacity: 1; pointer-events: all;
+      transform: translateY(0);
+    }
+    .scr.out {
+      opacity: 0; transform: translateY(-22px);
+      pointer-events: none;
+    }
+
+    /* ================================================
+       SHARED TYPE STYLES
+       ================================================ */
+    .eyebrow {
+      font-family: var(--ff-b);
+      font-size: .67rem; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--rose);
+      font-weight: 500; margin-bottom: .55rem;
+    }
+    .d-xl {
+      font-family: var(--ff-d);
+      font-size: clamp(2rem, 8.5vw, 3.2rem);
+      font-weight: 400; line-height: 1.15;
+    }
+    .d-lg {
+      font-family: var(--ff-d);
+      font-size: clamp(1.45rem, 6vw, 2rem);
+      font-weight: 400; line-height: 1.22;
+    }
+    .d-md {
+      font-family: var(--ff-d);
+      font-size: clamp(1.05rem, 4.5vw, 1.45rem);
+      font-weight: 400; line-height: 1.3;
+    }
+    .body-s {
+      font-size: clamp(.82rem, 3.2vw, .97rem);
+      line-height: 1.7; color: var(--muted);
+      font-weight: 300;
+    }
+
+    /* ================================================
+       SHARED CARD
+       ================================================ */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: var(--r);
+      box-shadow: 0 8px 28px var(--shadow);
+    }
+
+    /* ================================================
+       SHARED BUTTONS
+       ================================================ */
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .78rem 1.7rem; border-radius: 50px;
+      border: none; cursor: pointer;
+      font-family: var(--ff-b); font-size: .87rem;
+      font-weight: 500; letter-spacing: .03em;
+      transition: transform .18s ease, box-shadow .18s ease;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(.94); }
+    .btn-dark {
+      background: var(--plum); color: #fff;
+      box-shadow: 0 4px 18px rgba(45,21,32,.22);
+    }
+    .btn-ghost {
+      background: transparent; color: var(--rose);
+      border: 1.5px solid var(--rose);
+    }
+
+    /* ================================================
+       SCREEN 0 — INTRO
+       ================================================ */
+    #s0 { gap: 1.8rem; text-align: center; }
+
+    .bloom {
+      font-size: 3.5rem; display: block;
+      animation: bloompulse 2.6s ease-in-out infinite;
+    }
+    @keyframes bloompulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.1); }
+    }
+
+    #tap-ring {
+      width: 66px; height: 66px; border-radius: 50%;
+      background: rgba(255,255,255,.6);
+      border: 1.5px solid var(--rose-lt);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; cursor: pointer;
+      animation: ringpulse 2.2s ease-out infinite;
+      margin: 0 auto;
+    }
+    @keyframes ringpulse {
+      0%   { box-shadow: 0 0 0 0 rgba(200,96,122,.4); }
+      70%  { box-shadow: 0 0 0 18px rgba(200,96,122,0); }
+      100% { box-shadow: 0 0 0 0 rgba(200,96,122,0); }
+    }
+    .tap-label {
+      font-size: .75rem; color: var(--rose-lt);
+      letter-spacing: .12em; margin-top: .5rem;
+      animation: blinkfade 2s ease-in-out infinite;
+    }
+    @keyframes blinkfade { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+    /* ================================================
+       SCREEN 1 — WELCOME
+       ================================================ */
+    #s1 { gap: 1.6rem; text-align: center; }
+
+    /* ================================================
+       SCREEN 2 — HERO BIRTHDAY
+       ================================================ */
+    #s2 { gap: 1.1rem; text-align: center; }
+    .hero-name {
+      font-family: var(--ff-d);
+      font-style: italic; font-weight: 600;
+      font-size: clamp(3rem, 13vw, 5rem);
+      color: var(--rose); line-height: 1;
+    }
+
+    /* ================================================
+       SCREEN 3 — LETTER
+       ================================================ */
+    #s3 { gap: 1.15rem; text-align: center; }
+    .letter-wrap {
+      width: 100%; max-width: 390px;
+      padding: 1.7rem 1.55rem;
+      position: relative; overflow: hidden;
+      text-align: left;
+    }
+    .letter-wrap::before {
+      content: '"';
+      position: absolute; top: -.3rem; left: .75rem;
+      font-family: var(--ff-d); font-size: 5.5rem;
+      color: var(--rose-lt); opacity: .45;
+      line-height: 1; pointer-events: none;
+    }
+    .letter-body {
+      font-family: var(--ff-d); font-style: italic;
+      font-size: clamp(.93rem, 3.6vw, 1.12rem);
+      line-height: 1.85; color: var(--plum);
+    }
+    .letter-sig {
+      margin-top: 1rem; text-align: right;
+      font-family: var(--ff-d); font-style: italic;
+      color: var(--rose); font-size: .93rem;
+    }
+
+    /* ================================================
+       SCREEN 4 — MEMORIES
+       ================================================ */
+    #s4 { gap: 1rem; }
+    .mem-slider { width: 100%; max-width: 390px; overflow: hidden; }
+    .mem-track {
+      display: flex;
+      transition: transform .45s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+    }
+    .mem-slide { min-width: 100%; padding: 0 .15rem; }
+    .mem-img-box {
+      width: 100%;
+      height: clamp(190px, 50vw, 260px);
+      border-radius: 14px; overflow: hidden;
+    }
+    .mem-img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      display: block;
+    }
+    .mem-cap {
+      margin-top: .7rem;
+      font-family: var(--ff-d); font-style: italic;
+      font-size: clamp(.8rem, 3.1vw, .94rem);
+      color: var(--muted); line-height: 1.55;
+      text-align: center; padding: 0 .3rem;
+      min-height: 2.5rem;
+    }
+    .mem-navdots { display: flex; gap: .5rem; justify-content: center; }
+    .mdot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--rose-lt); cursor: pointer;
+      transition: background .3s ease, transform .3s ease;
+    }
+    .mdot.on { background: var(--rose); transform: scale(1.4); }
+    .mem-btns { display: flex; gap: .6rem; }
+
+    /* ================================================
+       SCREEN 5 — HIGHLIGHTS
+       ================================================ */
+    #s5 {
+      justify-content: flex-start;
+      padding-top: max(3.5rem, env(safe-area-inset-top, 3.5rem));
+      padding-bottom: 5.5rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      gap: 1rem;
+    }
+    .hl-list {
+      width: 100%; max-width: 390px;
+      display: flex; flex-direction: column; gap: .5rem;
+    }
+    .hl-item {
+      padding: .88rem 1.1rem;
+      display: flex; align-items: flex-start; gap: .7rem;
+      opacity: 0; transform: translateX(-14px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .hl-item.in { opacity: 1; transform: translateX(0); }
+    .hl-em { font-size: 1.05rem; flex-shrink: 0; margin-top: 2px; }
+    .hl-txt {
+      font-size: clamp(.79rem, 3.1vw, .91rem);
+      color: var(--muted); line-height: 1.6;
+      font-weight: 300;
+    }
+    /* sticky next button for highlights */
+    #s5 .hl-footer {
+      position: fixed; bottom: 1.4rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+    }
+
+    /* ================================================
+       SCREEN 6 — ENDING
+       ================================================ */
+    #s6 { gap: 1.4rem; text-align: center; }
+    .end-heart {
+      font-size: 2.9rem;
+      animation: hbeat 1.8s ease-in-out infinite;
+    }
+    @keyframes hbeat {
+      0%,100%{transform:scale(1)}
+      14%    {transform:scale(1.2)}
+      28%    {transform:scale(1)}
+      42%    {transform:scale(1.12)}
+    }
+    .end-card {
+      padding: 1.4rem 1.5rem;
+      text-align: center; max-width: 300px;
+    }
+    .end-sig {
+      font-family: var(--ff-d); font-style: italic;
+      color: var(--rose); font-size: 1.05rem;
+      margin-top: .8rem; display: block;
+    }
+
+    /* ================================================
+       UTILITY
+       ================================================ */
+    .w-full { width: 100%; }
+    .max390 { max-width: 390px; }
+    .tc { text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- Background + particles -->
+<div id="bg"></div>
+<div id="ptcl"></div>
+
+<!-- Confetti -->
+<canvas id="cc"></canvas>
+
+<!-- Fixed UI -->
+<button id="music-btn" aria-label="Toggle music" title="Toggle music">♪</button>
+<div id="dots">
+  <div class="dot on"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+</div>
+
+<!-- ================================================================
+     ✏️  EDITABLE CONTENT BLOCK
+     All text lives here — change anything below without touching HTML
+     ================================================================ -->
+<script>
+const C = {
+
+  // Browser tab title
+  title: "Happy Birthday Maluu ✨",
+
+  // ── Screen 1: Intro ──────────────────────────────────────────────
+  opening: "Hello little angel,\nApologies for the delay but here is something which may slightly match how special you are",
+
+  // ── Screen 2: Welcome ────────────────────────────────────────────
+  welcome: "Hey you — yes, you. Before you keep scrolling wondering what this is, just know someone thought of you enough to build a whole little world just for today 🌸",
+
+  // ── Screen 3: Hero Birthday ──────────────────────────────────────
+  heroText: "Happy Birthdayy",
+  heroName: "Maluu!",
+  subtext:  "Wishing you a day as bright as you are ✨",
+
+  // ── Screen 4: Letter ─────────────────────────────────────────────
+  letterTitle: "A little note, just for you",
+  letter: "Another year around the sun, and honestly you deserve a whole parade for it. You've been a genuinely good presence to have around, and that's not nothing. Here's to a year full of laughter, good surprises, and everything your heart is quietly hoping for.",
+  signature: "~ Haring 🌹",
+
+  // ── Screen 5: Memory Gallery ─────────────────────────────────────
+  memTitle: "We need more pictures -_-",
+  photos: [
+    {
+      src:     "assets/photo1.jpg",          // red background photo
+      alt:     "First date memory",
+      caption: "Small size but explosive character is something I figured out from our 1st date itself 💥"
+    },
+    {
+      src:     "assets/photo2.jpg",          // video call screenshot
+      alt:     "Video call memory",
+      caption: "Your babyteeth smile and not so babylike actions 💦 have been quite a lot on my mind"
+    },
+    {
+      src:     "assets/photo3.jpg",          // dark background / rickshaw photo
+      alt:     "Together memory",
+      caption: "We don't get much time, but it's fun to have your company — innocent attitude girly... talkative yet shaant sa guy, makes a good combo ngl 🫶"
+    }
+  ],
+
+  // ── Screen 6: Highlights / Reasons ───────────────────────────────
+  hlTitle: "Always remember...",
+  highlights: [
+    { e: "🌟", t: "You're a kind and sweet person and I feel lucky to have this bond with you" },
+    { e: "😂", t: "Try to keep every day of yours filled with laughter, joy and gratitude" },
+    { e: "🤝", t: "I wish you achieve and get everything your heart desires, and never hesitate to reach out to me... we're always going to stay friends (don't tell your new guy about me ever 🤫)" },
+    { e: "✨", t: "Stay the amazing girl you are — be optimistic and simple the way you are" },
+    { e: "🎂", t: "Celebrate yourself today, because you genuinely deserve it" }
+  ],
+
+  // ── Screen 7: Ending ─────────────────────────────────────────────
+  endTitle:  "Bule, apu arum!!!\n...if it's wrong then chhonggchinquionq 😅",
+  endMsg:    "~ A little gesture from a Haring 🌹",
+
+  // ── Music ─────────────────────────────────────────────────────────
+  // File lives at: assets/music.mp3
+  music: "assets/music.mp3"
+
+};
+</script>
+<!-- ================================================================
+     END EDITABLE BLOCK
+     ================================================================ -->
+
+<!-- ================================================================
+     SCREENS
+     ================================================================ -->
+<div id="app">
+
+  <!-- S0: Intro / Tap to Begin -->
+  <section class="scr active" id="s0" role="main">
+    <span class="bloom" aria-hidden="true">🌸</span>
+    <div class="tc" style="max-width:285px">
+      <div class="eyebrow">for you</div>
+      <p class="d-md" id="t-open" style="white-space:pre-line; color:var(--plum)"></p>
+    </div>
+    <div>
+      <div id="tap-ring" role="button" tabindex="0"
+           aria-label="Tap to begin the surprise">🎀</div>
+      <p class="tap-label">tap to begin</p>
+    </div>
+  </section>
+
+  <!-- S1: Welcome -->
+  <section class="scr" id="s1">
+    <div style="font-size:2.4rem" aria-hidden="true">🎉</div>
+    <div class="tc" style="max-width:305px">
+      <div class="eyebrow">hey there</div>
+      <p class="d-md" id="t-welcome"
+         style="font-style:italic; font-family:var(--ff-d); color:var(--plum)"></p>
+    </div>
+    <button class="btn btn-dark" id="b-w" style="margin-top:.6rem">Continue →</button>
+  </section>
+
+  <!-- S2: Hero Birthday -->
+  <section class="scr" id="s2">
+    <div class="tc">
+      <div class="eyebrow">today is all yours</div>
+      <p class="d-xl" id="t-hero" style="color:var(--plum)"></p>
+      <p class="hero-name" id="t-name"></p>
+      <p class="body-s" id="t-sub" style="margin-top:.5rem; max-width:260px; margin-left:auto; margin-right:auto"></p>
+    </div>
+    <button class="btn btn-dark" id="b-h" style="margin-top:.9rem">A message for you →</button>
+  </section>
+
+  <!-- S3: Letter -->
+  <section class="scr" id="s3">
+    <div class="tc w-full max390">
+      <div class="eyebrow">a little note</div>
+      <p class="d-md" id="t-lt" style="color:var(--plum)"></p>
+    </div>
+    <div class="card letter-wrap">
+      <p class="letter-body" id="t-lmsg"></p>
+      <p class="letter-sig" id="t-lsig"></p>
+    </div>
+    <button class="btn btn-dark" id="b-l" style="margin-top:.25rem">Our memories →</button>
+  </section>
+
+  <!-- S4: Memory Gallery -->
+  <section class="scr" id="s4">
+    <div class="tc w-full max390">
+      <div class="eyebrow">our moments</div>
+      <p class="d-md" id="t-mt" style="color:var(--plum)"></p>
+    </div>
+    <div class="mem-slider" id="mslider">
+      <div class="mem-track" id="mtrack"></div>
+    </div>
+    <div class="mem-navdots" id="mdots"></div>
+    <div class="mem-btns">
+      <button class="btn btn-ghost" id="b-mp" style="padding:.64rem 1.1rem; font-size:.82rem">← Back</button>
+      <button class="btn btn-dark"  id="b-mn" style="padding:.64rem 1.1rem; font-size:.82rem">Next →</button>
+    </div>
+  </section>
+
+  <!-- S5: Highlights -->
+  <section class="scr" id="s5">
+    <div class="tc w-full max390" style="flex-shrink:0">
+      <div class="eyebrow">from me to you</div>
+      <p class="d-md" id="t-hl" style="color:var(--plum)"></p>
+    </div>
+    <div class="hl-list" id="hllist"></div>
+    <!-- sticky button -->
+    <div class="hl-footer">
+      <button class="btn btn-dark" id="b-hl">The last bit →</button>
+    </div>
+  </section>
+
+  <!-- S6: Ending -->
+  <section class="scr" id="s6">
+    <span class="end-heart" aria-hidden="true">🌸</span>
+    <div class="tc" style="max-width:305px">
+      <div class="eyebrow">finally...</div>
+      <p class="d-md" id="t-et"
+         style="color:var(--plum); white-space:pre-line"></p>
+    </div>
+    <div class="card end-card">
+      <p style="font-size:1.8rem" aria-hidden="true">🎂 🎀 🌸</p>
+      <span class="end-sig" id="t-ef"></span>
+    </div>
+  </section>
+
+</div><!-- #app -->
+
+<audio id="aud" loop preload="none"></audio>
+
+<!-- ================================================================
+     MAIN SCRIPT
+     ================================================================ -->
+<script>
+(function () {
+  "use strict";
+
+  /* ── State ─────────────────────────────────────────────────────── */
+  const screens  = [...document.querySelectorAll('.scr')];
+  const dotsEl   = document.getElementById('dots');
+  const dotEls   = [...dotsEl.querySelectorAll('.dot')];
+  const musicBtn = document.getElementById('music-btn');
+  const aud      = document.getElementById('aud');
+  let cur = 0, memI = 0;
+  let musicInit = false, musicOn = false;
+
+  /* ── Particles ──────────────────────────────────────────────────── */
+  const ptcl   = document.getElementById('ptcl');
+  const pClrs  = ['#F5B8CA','#FFD6E0','#FFDDC1','#FFB3C6','#FFC8DD','#FFE0F0'];
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'p';
+    const sz = 4 + Math.random() * 10;
+    el.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;`
+      + `background:${pClrs[~~(Math.random()*pClrs.length)]};`
+      + `--d:${6+Math.random()*9}s;--dl:${Math.random()*8}s`;
+    ptcl.appendChild(el);
+  }
+
+  /* ── Populate text ─────────────────────────────────────────────── */
+  document.title = C.title;
+  setText('t-open',    C.opening);
+  setText('t-welcome', C.welcome);
+  setText('t-hero',    C.heroText);
+  setText('t-name',    C.heroName);
+  setText('t-sub',     C.subtext);
+  setText('t-lt',      C.letterTitle);
+  setText('t-lmsg',    C.letter);
+  setText('t-lsig',    C.signature);
+  setText('t-mt',      C.memTitle);
+  setText('t-hl',      C.hlTitle);
+  setText('t-et',      C.endTitle);
+  setText('t-ef',      C.endMsg);
+
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el && val) el.textContent = val;
+  }
+
+  /* ── Memory Slider ──────────────────────────────────────────────── */
+  const mtrack = document.getElementById('mtrack');
+  const mdots  = document.getElementById('mdots');
+
+  C.photos.forEach((ph, i) => {
+    // Slide
+    const slide = document.createElement('div');
+    slide.className = 'mem-slide';
+    slide.innerHTML =
+      `<div class="mem-img-box">` +
+        `<img class="mem-img" src="${ph.src}" alt="${ph.alt}" loading="lazy">` +
+      `</div>` +
+      `<p class="mem-cap">${ph.caption || ''}</p>`;
+    mtrack.appendChild(slide);
+    // Nav dot
+    const dot = document.createElement('div');
+    dot.className = 'mdot' + (i === 0 ? ' on' : '');
+    dot.setAttribute('role', 'button');
+    dot.setAttribute('aria-label', `View photo ${i+1}`);
+    dot.addEventListener('click', () => goMem(i));
+    mdots.appendChild(dot);
+  });
+
+  function goMem(i) {
+    memI = i;
+    mtrack.style.transform = `translateX(-${i * 100}%)`;
+    document.querySelectorAll('.mdot').forEach((d, j) => d.classList.toggle('on', j === i));
+    const btn = document.getElementById('b-mn');
+    btn.textContent = i === C.photos.length - 1 ? 'Continue →' : 'Next →';
+  }
+
+  document.getElementById('b-mp').addEventListener('click', () => {
+    if (memI > 0) goMem(memI - 1);
+  });
+  document.getElementById('b-mn').addEventListener('click', () => {
+    if (memI < C.photos.length - 1) goMem(memI + 1);
+    else goTo(cur + 1);
+  });
+
+  // Touch swipe
+  let tX = 0;
+  const mslider = document.getElementById('mslider');
+  mslider.addEventListener('touchstart', e => { tX = e.touches[0].clientX; }, { passive: true });
+  mslider.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tX;
+    if (Math.abs(dx) > 38) {
+      if (dx < 0 && memI < C.photos.length - 1) goMem(memI + 1);
+      if (dx > 0 && memI > 0) goMem(memI - 1);
+    }
+  });
+
+  /* ── Highlights ─────────────────────────────────────────────────── */
+  const hllist = document.getElementById('hllist');
+  C.highlights.forEach((h, i) => {
+    const el = document.createElement('div');
+    el.className = 'card hl-item';
+    el.style.transitionDelay = `${i * 0.1}s`;
+    el.innerHTML = `<span class="hl-em" aria-hidden="true">${h.e}</span><span class="hl-txt">${h.t}</span>`;
+    hllist.appendChild(el);
+  });
+
+  function revealHL() {
+    document.querySelectorAll('.hl-item').forEach(el => {
+      // Use rAF to ensure transition fires after class add
+      requestAnimationFrame(() => el.classList.add('in'));
+    });
+  }
+
+  /* ── Screen navigation ──────────────────────────────────────────── */
+  function goTo(idx) {
+    if (idx < 0 || idx >= screens.length) return;
+
+    // Exit current
+    screens[cur].classList.remove('active');
+    screens[cur].classList.add('out');
+    const prev = cur;
+    setTimeout(() => screens[prev].classList.remove('out'), 500);
+
+    cur = idx;
+
+    // Show fixed UI from screen 1 onward
+    if (cur > 0) {
+      dotsEl.classList.add('show');
+      musicBtn.classList.add('show');
+    }
+
+    // Scroll highlights back to top when entering
+    if (cur === 5) screens[5].scrollTop = 0;
+
+    // Activate next screen on next frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        screens[cur].classList.add('active');
+        dotEls.forEach((d, i) => d.classList.toggle('on', i === cur));
+        if (cur === 2) launchConfetti();
+        if (cur === 5) setTimeout(revealHL, 200);
+      });
+    });
+  }
+
+  /* ── Button wiring ──────────────────────────────────────────────── */
+  function firstTap() { startMusic(); goTo(1); }
+
+  const tapRing = document.getElementById('tap-ring');
+  tapRing.addEventListener('click', firstTap);
+  tapRing.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); firstTap(); }
+  });
+
+  document.getElementById('b-w').addEventListener('click',  () => goTo(2));
+  document.getElementById('b-h').addEventListener('click',  () => goTo(3));
+  document.getElementById('b-l').addEventListener('click',  () => goTo(4));
+  document.getElementById('b-hl').addEventListener('click', () => goTo(6));
+
+  /* ── Music ──────────────────────────────────────────────────────── */
+  aud.src = C.music;
+
+  function startMusic() {
+    if (musicInit) return;
+    musicInit = true;
+    aud.volume = 0.5;
+    aud.play()
+      .then(() => { musicOn = true; updateMBtn(); })
+      .catch(() => { /* browser blocked — toggle button still works */ });
+  }
+
+  musicBtn.addEventListener('click', () => {
+    if (!musicInit) { startMusic(); return; }
+    musicOn = !musicOn;
+    musicOn ? aud.play() : aud.pause();
+    updateMBtn();
+  });
+
+  function updateMBtn() {
+    musicBtn.textContent = musicOn ? '♪' : '♩';
+  }
+
+  /* ── Confetti ───────────────────────────────────────────────────── */
+  const cc   = document.getElementById('cc');
+  const ctx  = cc.getContext('2d');
+  const cClr = ['#F5B8CA','#FFD6E0','#C9906C','#C8607A','#FFDDC1','#FFE0F0'];
+  let bits = [], raf;
+
+  function launchConfetti() {
+    cc.width  = innerWidth;
+    cc.height = innerHeight;
+    bits = [];
+    for (let i = 0; i < 80; i++) {
+      bits.push({
+        x:  Math.random() * cc.width,
+        y:  Math.random() * -cc.height * 0.5,
+        w:  4 + Math.random() * 8,
+        h:  2 + Math.random() * 4,
+        c:  cClr[~~(Math.random() * cClr.length)],
+        r:  Math.random() * Math.PI * 2,
+        rv: (Math.random() - 0.5) * 0.11,
+        vx: (Math.random() - 0.5) * 1.3,
+        vy: 1.4 + Math.random() * 2
+      });
+    }
+    cancelAnimationFrame(raf);
+    animConf();
+    setTimeout(() => { cancelAnimationFrame(raf); ctx.clearRect(0, 0, cc.width, cc.height); }, 4800);
+  }
+
+  function animConf() {
+    ctx.clearRect(0, 0, cc.width, cc.height);
+    bits.forEach(b => {
+      b.y += b.vy; b.x += b.vx; b.r += b.rv;
+      if (b.y > cc.height) { b.y = -10; b.x = Math.random() * cc.width; }
+      ctx.save();
+      ctx.fillStyle = b.c;
+      ctx.translate(b.x + b.w / 2, b.y + b.h / 2);
+      ctx.rotate(b.r);
+      ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+      ctx.restore();
+    });
+    raf = requestAnimationFrame(animConf);
+  }
+
+})();
+</script>
+</body>
+</html>
