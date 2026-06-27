@@ -1,4 +1,4 @@
-# 🌸 Birthday Surprise for Maluu
+# 🌸 Birthday Surprise
 
 A mobile-first, multi-screen birthday website — built as a single static HTML file.
 
