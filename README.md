@@ -59,13 +59,13 @@ Do **not** touch anything outside those curly braces.
 
 ## 🚀 Deploying to GitHub Pages
 
-1. Create a new **public** repo on GitHub (e.g. `maluu-birthday`)
+1. Create a new **public** repo on GitHub (e.g. `name-birthday`)
 2. Upload the entire `birthday-maluu/` folder contents (not the folder itself — just whats inside)
 3. Go to **Settings → Pages**
 4. Set source to `main` branch, `/ (root)` folder
-5. Hit Save — your URL will be: `https://yourusername.github.io/maluu-birthday/`
+5. Hit Save — your URL will be: `https://yourusername.github.io/Birthdayy-wish/`
 
-Share that link with Maluu 🌸
+Share that link with the lucky person 🌸... they should be grateful to have you, I'm sure no one made this for you still you're doing this!
 
 ---
 
